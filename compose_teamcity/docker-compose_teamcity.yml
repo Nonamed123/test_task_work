@@ -1,0 +1,36 @@
+version: '3'
+services:
+  teamcity-server-instance:
+    image: ${SERVER_IMAGE}
+    container_name: ${CONTAINER_NAME_SERVER}
+    hostname: ${CONTAINER_NAME_SERVER}
+    expose:
+     - "${PORT}"
+    restart: always
+    volumes:
+      - ${TEAMCITY_DATA_PATH}:/data/teamcity_server/datadir
+      - ${TEAMCITY_LOGS_PATH}:/opt/teamcity/logs
+    networks:
+      - ${NETWORK1}
+      - ${NETWORK}
+
+  teamcity-agent-instance:
+    image: ${AGENT_IMAGE}
+    container_name: ${CONTAINER_NAME_AGENT}
+    hostname: ${CONTAINER_NAME_AGENT}
+    restart: always
+    volumes:
+      - ${TEAMCITY_AGENT_CONF}:/data/teamcity_agent/conf
+    environment:
+      - SERVER_URL=${CONTAINER_NAME_SERVER}:${PORT}
+      - TEAMCITY_SERVER=${TEAMCITY_SERVER}
+      - AGENT_NAME=${AGENT_NAME}  
+    networks:
+      - ${NETWORK1}
+      - ${NETWORK}
+
+networks:
+  teamcity-network:
+     name: ${NETWORK1}
+  proxy_nginx:
+    name: ${NETWORK}

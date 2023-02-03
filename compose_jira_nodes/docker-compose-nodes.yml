@@ -1,0 +1,116 @@
+version: '3'
+
+services:
+  node_1:
+    container_name: ${NODE_1_NAME}
+    hostname: ${NODE_1_NAME}
+    depends_on:
+      - postgresql
+    image: ${JIRA_IMAGE}
+    networks:
+      - ${JIRA_NETWORK}
+    volumes:
+      - ~/jira_node1:/var/atlassian/application-data/jira
+    expose:
+      - "${PORT_SERVER}"
+      - "${PORT_SERVER1}"
+    environment:
+      - 'ATL_JDBC_URL=jdbc:postgresql://postgresql:5432/${JIRA_DB}'
+      - 'ATL_JDBC_USER=${USER_JIRA}'
+      - 'ATL_JDBC_PASSWORD=${PASS_DB}'
+      - 'ATL_DB_DRIVER=org.postgresql.Driver'
+      - 'ATL_DB_TYPE=postgres72'
+      - 'JVM_MINIMUM_MEMORY=2048m'
+      - 'JVM_MAXIMUM_MEMORY=4096m'
+      - 'JVM_SUPPORT_RECOMMENDED_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"'
+      - 'CLUSTERED=true'
+      - 'JIRA_NODE_ID=node_1'
+      - 'CATALINA_OPTS:-Datlassian.cluster.scale=true -DjvmRoute=node_1'
+    logging:
+      # limit logs retained on host to 25MB
+      driver: "json-file"
+      options:
+        max-size: "500k"
+        max-file: "50"
+
+  node_2:
+    container_name: ${NODE_2_NAME}
+    hostname: ${NODE_2_NAME}
+    depends_on:
+      #- node_1
+      - postgresql
+    image: localhost/mdzivakou/jira-software:9.6.0
+    networks:
+      - ${JIRA_NETWORK}
+    volumes:
+      - ~/jira_node2:/var/atlassian/application-data/jira
+    expose:
+      - "${PORT_SERVER}"
+      - "${PORT_SERVER1}"
+    environment:
+      - 'ATL_JDBC_URL=jdbc:postgresql://postgresql:5432/${JIRA_DB}'
+      - 'ATL_JDBC_USER=${USER_JIRA}'
+      - 'ATL_JDBC_PASSWORD=${PASS_DB}'
+      - 'ATL_DB_DRIVER=org.postgresql.Driver'
+      - 'ATL_DB_TYPE=postgres72'
+      - 'JVM_MINIMUM_MEMORY=2048m'
+      - 'JVM_MAXIMUM_MEMORY=4096m'
+      - 'JVM_SUPPORT_RECOMMENDED_ARGS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"'
+      - 'CLUSTERED=true'
+      - 'JIRA_NODE_ID=node_2'
+      - 'CATALINA_OPTS:-Datlassian.cluster.scale=true -DjvmRoute=node_2'
+    logging:
+      # limit logs retained on host to 25MB
+      driver: "json-file"
+      options:
+        max-size: "500k"
+        max-file: "50"
+  haproxy:
+    container_name: ${HAPROXY_NAME}
+    hostname: ${HAPROXY_NAME}
+    image: ${HAPROXY_IMAGE}
+    sysctls:
+       - net.ipv4.ip_unprivileged_port_start=0
+    networks:
+      - ${JIRA_NETWORK}
+      - ${PROXY_METWORK}
+    ports:
+      - "${LB_PORT}:${LB_PORT}"
+      - "${LB_SPORT}:${LB_SPORT}"
+    volumes: 
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+
+  postgresql:
+    container_name: ${POSTGRESQL_NAME}
+    hostname: ${POSTGRESQL_NAME}
+    image: ${POSTGRESQL_IMAGE}
+    networks:
+      - ${JIRA_NETWORK}
+    volumes:
+      - postgresqldata:/var/lib/postgresql/data
+    expose:
+      - "${DB_PORT}"
+    environment:
+      - 'POSTGRES_USER=${USER_JIRA}'
+      # CHANGE THE PASSWORD in .env!
+      - 'POSTGRES_PASSWORD=${PASS_DB}'
+      - 'POSTGRES_DB=${JIRA_DB}'
+      - 'POSTGRES_ENCODING=UNICODE'
+      - 'POSTGRES_COLLATE=C'
+      - 'POSTGRES_COLLATE_TYPE=C'
+    logging:
+      # limit logs retained on host to 25MB
+      driver: "json-file"
+      options:
+        max-size: "500k"
+        max-file: "50"
+
+volumes:
+  postgresqldata:
+    external: false
+
+networks:
+  jiranet:
+     name: ${JIRA_NETWORK}
+  proxy_nginx:
+    name: ${PROXY_METWORK}

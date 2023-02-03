@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  portainer:
+    image: ${PORTAINER_IMAGE}
+    container_name: ${CONTAINER_NAME}
+    hostname: ${CONTAINER_NAME}
+    #command: -H unix:///var/run/docker.sock
+    command: --admin-password '$$2y$$05$$Xzv6io/kLuBIWeDMSrz4zuSJKOi4IiV0HYnhVUzpmVnPFWOvyIkte' -H unix:///var/run/docker.sock
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - ${NETWORK}
+    environment:
+      - VIRTUAL_HOST=${DOMAINS}
+      - VIRTUAL_PORT=${PORT}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${PORTAINER_DATA_PATH}:/data
+    expose:
+      - "${PORT}"
+      - "${SPORT}"
+networks:
+  proxy_nginx:
+    name: ${NETWORK}
