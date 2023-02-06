@@ -1,0 +1,2 @@
+30 2   * docker start certbot
+35 2   * docker exec proxy_web nginx -s reload
