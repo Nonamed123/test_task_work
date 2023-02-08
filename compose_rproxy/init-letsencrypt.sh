@@ -1,7 +1,6 @@
 #!/bin/bash
 
-domains=("jira01.datacloner.com www.jira01.datacloner.com" "portainer01.datacloner.com www.portainer01.datacloner.com" 
-"teamcity01.datacloner.com www.teamcity01.datacloner.com" "docker01.datacloner.com www.docker01.datacloner.com")
+domains=("jira01.datacloner.com" "portainer01.datacloner.com" "teamcity01.datacloner.com")
 email="devopstets83@gmail.com" # Adding a valid address is strongly recommended
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
