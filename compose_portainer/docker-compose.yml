@@ -22,6 +22,7 @@ services:
     expose:
       - "${PORT}"
       - "${SPORT}"
+    env_file: .env  
 networks:
   proxy_nginx:
     name: ${NETWORK}
