@@ -32,7 +32,7 @@ services:
       options:
         max-size: "500k"
         max-file: "50"
-
+    env_file: .env
   node_2:
     container_name: ${NODE_2_NAME}
     hostname: ${NODE_2_NAME}
@@ -65,6 +65,7 @@ services:
       options:
         max-size: "500k"
         max-file: "50"
+     env_file: .env
   haproxy:
     container_name: ${HAPROXY_NAME}
     hostname: ${HAPROXY_NAME}
@@ -104,6 +105,7 @@ services:
       options:
         max-size: "500k"
         max-file: "50"
+    env_file: .env
 
 volumes:
   postgresqldata:
