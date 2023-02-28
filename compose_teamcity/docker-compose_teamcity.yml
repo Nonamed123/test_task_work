@@ -13,7 +13,7 @@ services:
     networks:
       - ${NETWORK1}
       - ${NETWORK}
-
+    env_file: .env
   teamcity-agent-instance:
     image: ${AGENT_IMAGE}
     container_name: ${CONTAINER_NAME_AGENT}
@@ -28,7 +28,7 @@ services:
     networks:
       - ${NETWORK1}
       - ${NETWORK}
-
+    env_file: .env
 networks:
   teamcity-network:
      name: ${NETWORK1}
